@@ -1,0 +1,280 @@
+{
+	"info": {
+		"_postman_id": "cd6356bb-d7e7-413a-9482-cf697f514b16",
+		"name": "Test Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44334452",
+		"_collection_link": "https://g-2756155.postman.co/workspace/G's-Workspace~2ef5c67e-9ac4-4215-89c6-4786175f92ed/collection/44334452-cd6356bb-d7e7-413a-9482-cf697f514b16?action=share&source=collection_link&creator=44334452"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Removed redundant test for response status code",
+							"pm.test(\"Response status code is 200\", function () {",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Updated the security tests to ensure they are accurate and effective",
+							"pm.test(\"Content-Security-Policy header is present and set to a valid value\", function() {",
+							"  pm.expect(pm.response.headers.has('Content-Security-Policy')).to.be.true;",
+							"  pm.expect(pm.response.headers.get('Content-Security-Policy')).to.include(\"frame-ancestors 'none'\");",
+							"});",
+							"",
+							"pm.test(\"X-Content-Type-Options header is present and set to 'nosniff'\", function() {",
+							"  pm.expect(pm.response.headers.has('X-Content-Type-Options')).to.be.true;",
+							"  pm.expect(pm.response.headers.get('X-Content-Type-Options')).to.equal('nosniff');",
+							"});",
+							"var responseJSON = pm.response.json();",
+							"",
+							"// Test the response body structure and values",
+							"pm.test(\"Response body structure is valid\", function () {",
+							"    pm.expect(responseJSON).to.be.an('object').that.has.all.keys('page', 'per_page', 'total', 'total_pages', 'data', 'support');",
+							"});",
+							"",
+							"// checking that each user object has the required properties",
+							"pm.test(\"User object structure is valid\", function () {",
+							"  responseJSON.data.forEach((user)=>{",
+							"    pm.expect(user).to.have.property('id').that.is.a('number');",
+							"    pm.expect(user).to.have.property('email').that.is.a('string');",
+							"    pm.expect(user).to.have.property('first_name').that.is.a('string');",
+							"    pm.expect(user).to.have.property('last_name').that.is.a('string');",
+							"    pm.expect(user).to.have.property('avatar').that.is.a('string');",
+							"  });",
+							"});",
+							"// Test to validate specific data structures within the response body",
+							"pm.test(\"Each user's email is in a valid format\", function () {",
+							"  responseJSON.data.forEach((user) => {",
+							"    pm.expect(user.email).to.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/);",
+							"  });",
+							"});",
+							"",
+							"pm.test(\"Each user's avatar is a valid URL\", function () {",
+							"  responseJSON.data.forEach((user) => {",
+							"    pm.expect(user.avatar).to.match(/^http(s)?:\\/\\/.+/);",
+							"  });",
+							"});",
+							"",
+							"pm.test(\"Support object contains valid URL\", function () {",
+							"  pm.expect(responseJSON.support.url).to.match(/^http(s)?:\\/\\/.+/);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://reqres.in/api/users",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				},
+				"description": "This endpoint makes an HTTP GET request to retrieve a list of users from the specified API. The response contains a JSON object with the following structure:\n\n- `page` (number): The current page number of the result set.\n    \n- `per_page` (number): The number of users per page.\n    \n- `total` (number): The total number of users available.\n    \n- `total_pages` (number): The total number of pages available based on the result set.\n    \n- `data` (array): An array of user objects, each containing the following fields:\n    \n    - `id` (number): The unique identifier of the user.\n        \n    - `email` (string): The email address of the user.\n        \n    - `first_name` (string): The first name of the user.\n        \n    - `last_name` (string): The last name of the user.\n        \n    - `avatar` (string): The URL of the user's avatar image.\n        \n- `support` (object): An object containing support information with the following fields:\n    \n    - `url` (string): The URL for support.\n        \n    - `text` (string): The support text.\n        \n\nThe user has added tests for data validation and specific data structures within the response body."
+			},
+			"response": []
+		},
+		{
+			"name": "Add user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.equal(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response has the required fields - name, job, id, and createdAt\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.name).to.exist;\r",
+							"    pm.expect(responseData.job).to.exist;\r",
+							"    pm.expect(responseData.id).to.exist;\r",
+							"    pm.expect(responseData.createdAt).to.exist;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Name and job are non-empty strings\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.name).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Name should not be empty\");\r",
+							"    pm.expect(responseData.job).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Job should not be empty\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"ID is a non-empty string\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(responseData.id).to.be.a('string').and.to.have.lengthOf.at.least(1, \"ID should be a non-empty string\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"CreatedAt is a valid date format\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(responseData.createdAt).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Jane QA\",\r\n  \"job\": \"Automation Architect\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://reqres.in/api/users",
+					"protocol": "https",
+					"host": [
+						"reqres",
+						"in"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test to check if the 'id' field is a number with 2 or more digits\r",
+							"pm.test(\"Id field is a number with 2 or more digits\", function () {\r",
+							"    pm.expect(pm.response.json().id).to.be.a('number').and.to.satisfy((id) => id >= 10);\r",
+							"});\r",
+							"// Test to check if the 'id' field is a single digit number\r",
+							"pm.test(\"Id field is a single digit number\", function () {\r",
+							"    pm.expect(pm.response.json().id).to.be.a('number').and.to.satisfy((id) => id >= 0 && id <= 9);\r",
+							"});\r",
+							"// Test to check if the 'title' field contains the word 'Intro'\r",
+							"pm.test(\"Title field contains the word 'Intro'\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    pm.expect(responseData.title).to.be.a('string').and.to.include('Intro');\r",
+							"});\r",
+							"// Test to check if the 'title' field contains the words 'First' and 'Second'\r",
+							"pm.test(\"Title field contains the words 'First' and 'Second'\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    pm.expect(responseData.title).to.be.a('string').and.to.include('First');\r",
+							"    pm.expect(responseData.title).to.be.a('string').and.to.include('Second');\r",
+							"});\r",
+							"// Test to check if the 'title' field contains more than 25 characters\r",
+							"pm.test(\"Title field contains more than 25 characters\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    pm.expect(responseData.title.length).to.be.greaterThan(25);\r",
+							"});\r",
+							"var template = `\r",
+							"<style type=\"text/css\">\r",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+							"    .tftable tr {background-color:#ffffff;}\r",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+							"    .tftable tr:hover {background-color:#e0ffff;}\r",
+							"</style>\r",
+							"\r",
+							"<table class=\"tftable\" border=\"1\">\r",
+							"    <tr>\r",
+							"        <th>User ID</th>\r",
+							"        <th>ID</th>\r",
+							"        <th>Title</th>\r",
+							"        <th>Body</th>\r",
+							"        <th>Link</th>\r",
+							"        <th>Comment Count</th>\r",
+							"    </tr>\r",
+							"    \r",
+							"    <tr>\r",
+							"        <td>{{response.userId}}</td>\r",
+							"        <td>{{response.id}}</td>\r",
+							"        <td>{{response.title}}</td>\r",
+							"        <td>{{response.body}}</td>\r",
+							"        <td>{{response.link}}</td>\r",
+							"        <td>{{response.comment_count}}</td>\r",
+							"    </tr>\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function constructVisualizerPayload() {\r",
+							"    return {response: pm.response.json()}\r",
+							"}\r",
+							"\r",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n  {\r\n    \"userId\": 1,\r\n    \"id\": 1,\r\n    \"title\": \"Introduction to Artificial Intelligence\",\r\n    \"body\": \"Learn the basics of Artificial Intelligence and its applications in various industries.\",\r\n    \"link\": \"https://example.com/article1\",\r\n    \"comment_count\": 8\r\n  },\r\n  {\r\n    \"userId\": 2,\r\n    \"id\": 2,\r\n    \"title\": \"Web Development with React\",\r\n    \"body\": \"Build modern web applications using React.js and explore its powerful features.\",\r\n    \"link\": \"https://example.com/article2\",\r\n    \"comment_count\": 12\r\n  },\r\n  {\r\n    \"userId\": 3,\r\n    \"id\": 3,\r\n    \"title\": \"Data Science Fundamentals\",\r\n    \"body\": \"Dive into the world of Data Science and discover how to analyze and interpret data.\",\r\n    \"link\": \"https://example.com/article3\",\r\n    \"comment_count\": 5\r\n  },\r\n  {\r\n    \"userId\": 4,\r\n    \"id\": 4,\r\n    \"title\": \"Machine Learning Algorithms\",\r\n    \"body\": \"Explore various Machine Learning algorithms and understand their workings.\",\r\n    \"link\": \"https://example.com/article4\",\r\n    \"comment_count\": 17\r\n  },\r\n  {\r\n    \"userId\": 5,\r\n    \"id\": 5,\r\n    \"title\": \"Introduction to Blockchain\",\r\n    \"body\": \"Learn about Blockchain technology, its use-cases, and how it ensures secure transactions.\",\r\n    \"link\": \"https://example.com/article5\",\r\n    \"comment_count\": 3\r\n  },\r\n  {\r\n    \"userId\": 6,\r\n    \"id\": 6,\r\n    \"title\": \"iOS App Development\",\r\n    \"body\": \"Get started with iOS app development using Swift and create feature-rich applications.\",\r\n    \"link\": \"https://example.com/article6\",\r\n    \"comment_count\": 10\r\n  },\r\n  {\r\n    \"userId\": 7,\r\n    \"id\": 7,\r\n    \"title\": \"Python for Data Analysis\",\r\n    \"body\": \"Utilize Python libraries like Pandas and NumPy for data manipulation and analysis.\",\r\n    \"link\": \"https://example.com/article7\",\r\n    \"comment_count\": 15\r\n  },\r\n  {\r\n    \"userId\": 8,\r\n    \"id\": 8,\r\n    \"title\": \"Cybersecurity Best Practices\",\r\n    \"body\": \"Learn essential cybersecurity practices to safeguard your digital assets.\",\r\n    \"link\": \"https://example.com/article8\",\r\n    \"comment_count\": 6\r\n  },\r\n  {\r\n    \"userId\": 9,\r\n    \"id\": 9,\r\n    \"title\": \"Cloud Computing Essentials\",\r\n    \"body\": \"Understand the fundamentals of Cloud Computing and its benefits for businesses.\",\r\n    \"link\": \"https://example.com/article9\",\r\n    \"comment_count\": 9\r\n  },\r\n  {\r\n    \"userId\": 10,\r\n    \"id\": 10,\r\n    \"title\": \"Introduction to UX Design\",\r\n    \"body\": \"Discover the principles of User Experience (UX) design and create intuitive user interfaces.\",\r\n    \"link\": \"https://example.com/article10\",\r\n    \"comment_count\": 21\r\n  }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dummy-json.mock.beeceptor.com/posts/3",
+					"protocol": "https",
+					"host": [
+						"dummy-json",
+						"mock",
+						"beeceptor",
+						"com"
+					],
+					"path": [
+						"posts",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
